@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('salidas', SalidaController::class);
 
     Route::get('/balance', [BalanceController::class, 'index'])->name('balance.index');
+
+    Route::get('/balance/pdf', [BalanceController::class, 'generarPDF'])->name('balance.pdf');
 });
 
 require __DIR__.'/auth.php';
