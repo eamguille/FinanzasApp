@@ -34,14 +34,20 @@ class EntradaController extends Controller
             'tipo' => 'required|string',
             'monto' => 'required|numeric',
             'fecha' => 'required|date',
-            'factura' => 'nullable|string',
+            'factura' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ]);
+
+        $rutaFactura = null;
+
+        if ($request->hasFile('factura')) {
+            $rutaFactura = $request->file('factura')->store('facturas', 'public');
+        }
 
         Entrada::create([
             'tipo' => $request->tipo,
             'monto' => $request->monto,
             'fecha' => $request->fecha,
-            'factura' => $request->factura,
+            'factura' => $rutaFactura,
             'user_id' => Auth::id(),
         ]);
 
@@ -77,18 +83,25 @@ class EntradaController extends Controller
             'tipo' => 'required|string|max:100',
             'monto' => 'required|numeric',
             'fecha' => 'required|date',
-            'factura' => 'nullable|string|max:255',
+            'factura' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ]);
 
         $entrada = Entrada::where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
+        $rutaFactura = $entrada->factura;
+
+        // Si sube una nueva factura, reemplaza la ruta
+        if ($request->hasFile('factura')) {
+            $rutaFactura = $request->file('factura')->store('facturas', 'public');
+        }
+
         $entrada->update([
             'tipo' => $request->tipo,
             'monto' => $request->monto,
             'fecha' => $request->fecha,
-            'factura' => $request->factura,
+            'factura' => $rutaFactura
         ]);
 
         return redirect()->route('entradas.index')->with('success', 'Entrada actualizada correctamente.');

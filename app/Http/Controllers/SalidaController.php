@@ -34,14 +34,20 @@ class SalidaController extends Controller
             'tipo' => 'required|string',
             'monto' => 'required|numeric',
             'fecha' => 'required|date',
-            'factura' => 'nullable|string',
+            'factura' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ]);
+
+        $rutaFactura = null;
+
+        if ($request->hasFile('factura')) {
+            $rutaFactura = $request->file('factura')->store('facturas', 'public');
+        }
 
         Salida::create([
             'tipo' => $request->tipo,
             'monto' => $request->monto,
             'fecha' => $request->fecha,
-            'factura' => $request->factura,
+            'factura' => $rutaFactura,
             'user_id' => Auth::id(),
         ]);
 
@@ -76,14 +82,21 @@ class SalidaController extends Controller
             'tipo' => 'required|string',
             'monto' => 'required|numeric',
             'fecha' => 'required|date',
-            'factura' => 'nullable|string',
+            'factura' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ]);
+
+        $rutaFactura = $salida->factura;
+
+        // Si sube una nueva factura, reemplaza la ruta
+        if ($request->hasFile('factura')) {
+            $rutaFactura = $request->file('factura')->store('facturas', 'public');
+        }
 
         $salida->update([
             'tipo' => $request->tipo,
             'monto' => $request->monto,
             'fecha' => $request->fecha,
-            'factura' => $request->factura,
+            'factura' => $rutaFactura,
         ]);
 
         return redirect()->route('salidas.index')->with('success', 'Salida actualizada correctamente.');
